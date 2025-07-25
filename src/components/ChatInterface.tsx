@@ -31,53 +31,61 @@ const ChatInterface: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  const generateBotResponse = (userMessage: string): string => {
-    const message = userMessage.toLowerCase();
-    
-    if (message.includes('traffic') || message.includes('road')) {
-      return 'Current traffic situation: MG Road has heavy congestion due to construction. ORR is experiencing moderate traffic. I recommend using Silk Board route for faster travel. Would you like specific route suggestions?';
-    } else if (message.includes('weather')) {
-      return 'Today\'s weather in Bangalore: Partly cloudy with a high of 26°C and low of 18°C. There\'s a 30% chance of rain in the evening. Perfect weather for outdoor activities!';
-    } else if (message.includes('event') || message.includes('happening')) {
-      return 'Upcoming events in Bangalore: Tech Summit at Palace Grounds (Jan 5-7), Food Festival in Lalbagh (Jan 10), Marathon registration open for Feb 15. Which type of events interest you most?';
-    } else if (message.includes('metro') || message.includes('transport')) {
-      return 'Bangalore Metro update: Purple Line is running on schedule. Green Line has minor delays due to maintenance. New metro station in Whitefield opens next month. Need specific route information?';
-    } else if (message.includes('news')) {
-      return 'Top news today: New IT park opens in Electronic City, Water supply disruption in Whitefield, Bangalore FC reaches AFC Cup finals. Would you like details on any specific story?';
-    } else {
-      return 'I can help you with traffic updates, weather information, local events, metro schedules, and breaking news in Bangalore. What specific information are you looking for?';
+const generateBotResponse = async (userMessage: string): Promise<string> => {
+  try {
+    const response = await fetch("https://fastapi-city-graph-apis-1081552206448.asia-south1.run.app/api/v1/graph/retrieve", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ query: userMessage })
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+
+    const data = await response.json();
+    // return data?.answer || 'Sorry, I couldn’t retrieve any data.';
+    return data
+  } catch (error) {
+    console.error('Error fetching response:', error);
+    return 'Something went wrong while fetching the data. Please try again later.';
+  }
+};
+
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim()) return;
+  console.log('Sending message:', inputMessage);
+  if (!inputMessage.trim()) return;
 
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      content: inputMessage,
-      sender: 'user',
-      timestamp: new Date(),
-      type: 'text'
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    setInputMessage('');
-    setIsTyping(true);
-
-    // Simulate bot typing delay
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: generateBotResponse(inputMessage),
-        sender: 'bot',
-        timestamp: new Date(),
-        type: 'text'
-      };
-
-      setMessages(prev => [...prev, botResponse]);
-      setIsTyping(false);
-    }, 1500);
+  const userMessage: Message = {
+    id: Date.now().toString(),
+    content: inputMessage,
+    sender: 'user',
+    timestamp: new Date(),
+    type: 'text'
   };
+
+  setMessages(prev => [...prev, userMessage]);
+  setInputMessage('');
+  setIsTyping(true);
+
+  // Call live API
+  const botContent = await generateBotResponse(userMessage.content);
+
+  const botResponse: Message = {
+    id: (Date.now() + 1).toString(),
+    content: botContent,
+    sender: 'bot',
+    timestamp: new Date(),
+    type: 'text'
+  };
+
+  setMessages(prev => [...prev, botResponse]);
+  setIsTyping(false);
+};
+
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -201,7 +209,7 @@ const ChatInterface: React.FC = () => {
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask about traffic, weather, events, or news..."
+              placeholder="Ask about traffic, weather."
               className="w-full border border-slate-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none bg-white/70 backdrop-blur-sm transition-all duration-200"
               rows={1}
               style={{ minHeight: '40px', maxHeight: '120px' }}

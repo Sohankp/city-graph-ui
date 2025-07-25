@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Filter, MessageCircle, Upload, Search, Menu, X, TrendingUp, AlertTriangle, Users, Clock, Eye, Share2, Bookmark, ExternalLink, Send, Bot, User, Calendar, Tag, Image, AlertCircle, CheckCircle, Camera, Video, FileImage, Trash2, Edit3, Award, Settings, Bell, Shield, LogOut } from 'lucide-react';
 import UserProfile from './components/UserProfile';
+import ChatInterface from './components/ChatInterface';
+import EventUpload from './components/EventUpload';
 
 interface MapEvent {
   id: string;
@@ -354,67 +356,6 @@ function App() {
     </div>
   );
 
-  const renderChat = () => (
-    <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto space-y-3 mb-4">
-        {messages.map((message) => (
-          <div key={message.id} className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`flex items-end space-x-2 max-w-xs ${
-              message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : 'flex-row'
-            }`}>
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
-                message.sender === 'user' 
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600' 
-                  : 'bg-gradient-to-r from-slate-400 to-slate-500'
-              }`}>
-                {message.sender === 'user' ? (
-                  <User className="text-white" size={12} />
-                ) : (
-                  <Bot className="text-white" size={12} />
-                )}
-              </div>
-              <div className={`rounded-lg p-3 ${
-                message.sender === 'user'
-                  ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
-                  : 'bg-white/90 border border-white/20 text-slate-900'
-              }`}>
-                <p className="text-sm">{message.content}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-        {isTyping && (
-          <div className="flex justify-start">
-            <div className="bg-white/90 backdrop-blur-sm border border-white/20 rounded-lg p-3">
-              <div className="flex space-x-1">
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce"></div>
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-                <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-      <div className="flex items-center space-x-2">
-        <input
-          type="text"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-          placeholder="Ask about traffic, weather, events..."
-          className="flex-1 border border-slate-300 rounded-xl px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/70 backdrop-blur-sm"
-        />
-        <button
-          onClick={handleSendMessage}
-          disabled={!inputMessage.trim()}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-2 rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:from-slate-300 disabled:to-slate-400 transition-all duration-200"
-        >
-          <Send size={16} />
-        </button>
-      </div>
-    </div>
-  );
-
   const renderUpload = () => (
     <div className="space-y-4">
       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-4">
@@ -617,13 +558,13 @@ function App() {
       <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-6">
         <h3 className="text-lg font-semibold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent mb-4">Quick Actions</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <button
+          {/* <button
             onClick={() => setActivePanel('stories')}
             className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl hover:from-blue-100 hover:to-indigo-100 transition-all duration-200 text-center border border-blue-100 shadow-sm hover:shadow-md transform hover:scale-105"
           >
             <Search className="mx-auto mb-2 text-blue-600" size={24} />
             <div className="text-sm font-medium text-blue-700">Browse Stories</div>
-          </button>
+          </button> */}
           <button
             onClick={() => setActivePanel('upload')}
             className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl hover:from-emerald-100 hover:to-teal-100 transition-all duration-200 text-center border border-emerald-100 shadow-sm hover:shadow-md transform hover:scale-105"
@@ -933,20 +874,20 @@ function App() {
             </div>
             <div className="bg-white/80 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 h-full">
               <div className="p-6 h-full">
-                {renderChat()}
+                {<ChatInterface/>}
               </div>
             </div>
           </div>
         )}
         {activePanel === 'upload' && (
           <div className="max-w-4xl mx-auto">
-            <div className="mb-6">
+            {/* <div className="mb-6">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-slate-800 via-blue-700 to-indigo-700 bg-clip-text text-transparent mb-2">
                 Upload Event
               </h2>
               <p className="text-slate-600">Share events happening in Bangalore with the community</p>
-            </div>
-            {renderUpload()}
+            </div> */}
+            {<EventUpload/>}
           </div>
         )}
         {activePanel === 'map' && (
