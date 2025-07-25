@@ -77,8 +77,20 @@ const EventUpload: React.FC = () => {
       }));
 
       console.log('Payload to send:', payloads);
-      // Simulate API call
-      setTimeout(() => {
+
+      // Integrate FastAPI endpoint
+      const response = await fetch(
+        'https://fastapi-city-graph-apis-1081552206448.asia-south1.run.app/api/v1/upload/image',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payloads[0])
+        }
+      );
+
+      if (response.ok) {
         setSubmitStatus('success');
         setIsSubmitting(false);
         setImages([]);
@@ -87,10 +99,14 @@ const EventUpload: React.FC = () => {
         setTags([]);
         setCurrentTag('');
         setTimeout(() => setSubmitStatus('idle'), 3000);
-      }, 2000);
+      } else {
+        setSubmitStatus('error');
+        setIsSubmitting(false);
+      }
     } catch (error) {
       console.error('Error converting to base64', error);
       setIsSubmitting(false);
+      setSubmitStatus('error');
     }
   };
 
