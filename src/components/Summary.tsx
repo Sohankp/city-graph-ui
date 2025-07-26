@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import {
   Upload,
   MessageCircle,
@@ -14,6 +13,7 @@ interface CategoryContent {
 type SummaryData = Record<string, CategoryContent>;
 
 interface Props {
+  summaryData: SummaryData; // Receive summary data as prop
   setActivePanel: React.Dispatch<
     React.SetStateAction<
       'summary' | 'stories' | 'filter' | 'chat' | 'upload' | 'map' | 'profile'
@@ -21,28 +21,16 @@ interface Props {
   >;
 }
 
-const SummaryDashboard: React.FC<Props> = ({ setActivePanel }) => {
-  const [summaryData, setSummaryData] = useState<SummaryData>({});
+const SummaryDashboard: React.FC<Props> = ({ summaryData, setActivePanel }) => {
   const [activeCategory, setActiveCategory] = useState<string>('');
 
+  // Set initial active category when summaryData is available
   useEffect(() => {
-  const fetchSummary = async () => {
-    try {
-      const response = await axios.post<SummaryData>(
-        'https://fastapi-city-graph-apis-1081552206448.asia-south1.run.app/api/v1/get/overall/summary'
-      );
-      const data = response.data;
-      setSummaryData(data);
-      const firstKey = Object.keys(data)[0];
+    if (summaryData) {
+      const firstKey = Object.keys(summaryData)[0];
       setActiveCategory(firstKey);
-    } catch (error) {
-      console.error('Failed to fetch summary data:', error);
     }
-  };
-
-  fetchSummary();
-}, []);
-
+  }, [summaryData]); // Run this effect when summaryData changes
 
   const categoryTabs = Object.keys(summaryData);
 
@@ -72,7 +60,7 @@ const SummaryDashboard: React.FC<Props> = ({ setActivePanel }) => {
       </div>
 
       {/* Summary Content for Selected Category */}
-      {activeCategory && (
+      {activeCategory && summaryData[activeCategory] && (
         <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-lg border border-white/20 p-6">
           <h3 className="text-lg font-semibold text-slate-800 mb-3">{activeCategory} Updates</h3>
 

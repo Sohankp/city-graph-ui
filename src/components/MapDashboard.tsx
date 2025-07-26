@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   GoogleMap,
   MarkerF,
@@ -31,6 +31,10 @@ type MoodData = {
   };
 };
 
+interface Props {
+  moodData: MoodData[] | null; // Receive mood data as prop
+}
+
 const API_URL = 'https://fastapi-city-graph-apis-1081552206448.asia-south1.run.app/api/v1/mood/map';
 
 const emojiMap = {
@@ -51,7 +55,7 @@ const getMarkerColor = (mood: Mood) => {
   return "http://maps.google.com/mapfiles/ms/icons/orange-dot.png";
 };
 
-const MapDashboard = () => {
+const MapDashboard: React.FC<Props> = ({ moodData }) => { // Receive moodData as prop
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey,
     libraries: libraries as any,
@@ -59,25 +63,8 @@ const MapDashboard = () => {
 
   const [selected, setSelected] = useState<MoodData | null>(null);
   const [view, setView] = useState<"mood" | "heatmap" | "markers">("markers");
-  const [moodData, setMoodData] = useState<MoodData[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  // const [moodData, setMoodData] = useState<MoodData[]>([]);// Removed local state
   const heatmapRef = React.useRef<google.maps.visualization.HeatmapLayer | null>(null);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(API_URL);
-        const data = await response.json();
-        setMoodData(data);
-      } catch (error) {
-        console.error("Error fetching mood data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, []);
 
   // 🧹 Remove heatmap when not in heatmap view
   React.useEffect(() => {
@@ -89,26 +76,13 @@ const MapDashboard = () => {
 
   if (loadError) return <div>Error loading map</div>;
   if (!isLoaded) return <div>Loading map...</div>;
+  if (!moodData) return <div>Loading mood data...</div>; // Handle loading state for moodData
+
 
   return (
     <div style={{ width: "100%", height: "100vh", position: "relative" }}>
-      {loading && (
-        <div style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          zIndex: 20,
-          fontSize: '24px'
-        }}>
-          Loading data...
-        </div>
-      )}
+      {/* Removed local loading state and indicator */}
+
       {/* 🧭 Bottom-left map view toggle */}
       <div
         style={{
@@ -167,7 +141,7 @@ const MapDashboard = () => {
         {/* Heatmap Layer */}
         {view === "heatmap" && (
           <HeatmapLayerF
-            onLoad={(layer) => {
+            onLoad={(layer: google.maps.visualization.HeatmapLayer) => { // Explicitly type layer
               heatmapRef.current = layer;
             }}
             data={moodData.map((data) => ({
