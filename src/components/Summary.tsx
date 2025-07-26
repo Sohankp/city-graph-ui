@@ -24,27 +24,43 @@ interface Props {
 const SummaryDashboard: React.FC<Props> = ({ setActivePanel }) => {
   const [summaryData, setSummaryData] = useState<SummaryData>({});
   const [activeCategory, setActiveCategory] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-  const fetchSummary = async () => {
-    try {
-      const response = await axios.post<SummaryData>(
-        'https://fastapi-city-graph-apis-1081552206448.asia-south1.run.app/api/v1/get/overall/summary'
-      );
-      const data = response.data;
-      setSummaryData(data);
-      const firstKey = Object.keys(data)[0];
-      setActiveCategory(firstKey);
-    } catch (error) {
-      console.error('Failed to fetch summary data:', error);
-    }
-  };
+    const fetchSummary = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.post<SummaryData>(
+          'https://fastapi-city-graph-apis-1081552206448.asia-south1.run.app/api/v1/get/overall/summary'
+        );
+        const data = response.data;
+        setSummaryData(data);
+        const firstKey = Object.keys(data)[0];
+        setActiveCategory(firstKey);
+      } catch (error) {
+        console.error('Failed to fetch summary data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchSummary();
-}, []);
+    fetchSummary();
+  }, []);
 
 
   const categoryTabs = Object.keys(summaryData);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[300px]">
+        <svg className="animate-spin h-10 w-10 text-blue-600 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        <span className="text-blue-700 font-medium">Loading summary data...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
