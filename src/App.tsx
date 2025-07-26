@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Filter, MessageCircle, Upload, Search, Menu, X, TrendingUp, AlertTriangle, Users, Clock, Eye, Share2, Bookmark, ExternalLink, Send, Bot, User, Calendar, Tag, Image, AlertCircle, CheckCircle, Camera, Video, FileImage, Trash2, Edit3, Award, Settings, Bell, Shield, LogOut } from 'lucide-react';
+import { MapPin, Filter, MessageCircle, Upload, Search, Menu, X, TrendingUp, AlertTriangle, Users, Clock, Eye, Share2, Bookmark, ExternalLink, Send, Bot, User, Calendar, Tag, Image, AlertCircle, CheckCircle, Camera, Video, FileImage, Trash2, Edit3, Award, Settings, Bell, Shield, LogOut, Map } from 'lucide-react';
 import UserProfile from './components/UserProfile';
 import ChatInterface from './components/ChatInterface';
 import EventUpload from './components/EventUpload';
 import SummaryDashboard from './components/Summary';
+import MapDashboard from './components/MapDashboard';
 
 interface MapEvent {
   id: string;
@@ -899,7 +900,7 @@ function App() {
               </h2>
               <p className="text-slate-600">Real-time view of events and activities across Bangalore</p>
             </div>
-            {renderMapDashboard()}
+            {<MapDashboard/>}
           </div>
         )}
         {activePanel === 'profile' && (
