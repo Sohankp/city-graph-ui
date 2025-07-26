@@ -3,6 +3,7 @@ import { MapPin, Filter, MessageCircle, Upload, Search, Menu, X, TrendingUp, Ale
 import UserProfile from './components/UserProfile';
 import ChatInterface from './components/ChatInterface';
 import EventUpload from './components/EventUpload';
+import SummaryDashboard from './components/Summary';
 
 interface MapEvent {
   id: string;
@@ -841,7 +842,7 @@ function App() {
 
       {/* Main Content Area */}
       <div className="p-6">
-        {activePanel === 'summary' && renderSummary()}
+        {activePanel === 'summary' && <SummaryDashboard setActivePanel={setActivePanel}/>}
         {activePanel === 'stories' && (
           <div className="max-w-7xl mx-auto">
             <div className="mb-6">
