@@ -3,6 +3,7 @@ import { MapPin, Filter, MessageCircle, Upload, Search, Menu, X, TrendingUp, Ale
 import UserProfile from './components/UserProfile';
 import ChatInterface from './components/ChatInterface';
 import EventUpload from './components/EventUpload';
+import MapDashboard from './components/MapDashboard';
 
 interface MapEvent {
   id: string;
@@ -898,7 +899,8 @@ function App() {
               </h2>
               <p className="text-slate-600">Real-time view of events and activities across Bangalore</p>
             </div>
-            {renderMapDashboard()}
+            {/* {renderMapDashboard()} */}
+            {<MapDashboard/>}
           </div>
         )}
         {activePanel === 'profile' && (
