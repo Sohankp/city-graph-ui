@@ -230,23 +230,169 @@
 // };
 
 // export default MapDashboard;
+
+
+// "use client";
+// import React, { useState } from "react";
+// import { GoogleMap, MarkerF, InfoWindowF, useLoadScript } from "@react-google-maps/api";
+
+// const libraries = ["places"];
+// const googleMapContainerStyle = {
+//   width: "100%",
+//   height: "100vh",
+// };
+
+// const center = {
+//   lat: 12.9716,
+//   lng: 77.5946,
+// };
+
+// // Mock traffic/weather/news data
+// const areaData = [
+//   {
+//     id: 1,
+//     name: "Koramangala",
+//     lat: 12.9352,
+//     lng: 77.6245,
+//     weather: "Heavy Rain 🌧️",
+//     temp: 24,
+//     tweetCount: 5,
+//     newsCount: 2,
+//   },
+//   {
+//     id: 2,
+//     name: "Hebbal",
+//     lat: 13.0358,
+//     lng: 77.5970,
+//     weather: "Cloudy ☁️",
+//     temp: 26,
+//     tweetCount: 1,
+//     newsCount: 1,
+//   },
+//   {
+//     id: 3,
+//     name: "Silk Board",
+//     lat: 12.9172,
+//     lng: 77.6238,
+//     weather: "Clear 🌞",
+//     temp: 30,
+//     tweetCount: 3,
+//     newsCount: 4,
+//   },
+// ];
+
+// const getMarkerColor = (tweets: number, news: number, weather: string) => {
+//   const isRain = weather.toLowerCase().includes("rain");
+//   if (tweets >= 3 || news >= 3 || isRain)
+//     return "http://maps.google.com/mapfiles/ms/icons/red-dot.png";
+//   if ((tweets >= 1 && tweets < 3) || (news >= 1 && news < 3))
+//     return "http://maps.google.com/mapfiles/ms/icons/orange-dot.png";
+//   return "http://maps.google.com/mapfiles/ms/icons/green-dot.png";
+// };
+
+// const MapDashboard = () => {
+//   const { isLoaded, loadError } = useLoadScript({
+//     googleMapsApiKey: "AIzaSyBqXRmYQJPiIUFXKt0Z125e4fgES-hszRg", // 🔐 Replace with your API key
+//     libraries: libraries as any,
+//   });
+
+//   const [selected, setSelected] = useState<any>(null);
+
+//   if (loadError) return <div>Error loading map</div>;
+//   if (!isLoaded) return <div>Loading...</div>;
+
+//   return (
+//     <div style={{ width: "100%", height: "100vh", position: "relative" }}>
+//       <GoogleMap
+//         mapContainerStyle={googleMapContainerStyle}
+//         center={center}
+//         zoom={12}
+//       >
+//         {areaData.map((area) => (
+//           <MarkerF
+//             key={area.id}
+//             position={{ lat: area.lat, lng: area.lng }}
+//             icon={{
+//               url: getMarkerColor(area.tweetCount, area.newsCount, area.weather),
+//             }}
+//             onClick={() => setSelected(area)}
+//           />
+//         ))}
+
+//         {selected && (
+//           <InfoWindowF
+//             position={{ lat: selected.lat, lng: selected.lng }}
+//             onCloseClick={() => setSelected(null)}
+//           >
+//             <div
+//               style={{
+//                 border: "2px solid #007BFF",
+//                 borderRadius: "8px",
+//                 padding: "10px",
+//                 minWidth: "200px",
+//                 fontFamily: "Arial, sans-serif",
+//                 fontSize: "14px",
+//                 lineHeight: "1.5",
+//               }}
+//             >
+//               <div style={{ fontWeight: "bold", fontSize: "16px", marginBottom: "5px" }}>
+//                 📍 {selected.name}
+//               </div>
+//               <div>
+//                 <span style={{ fontWeight: "bold" }}>🌤️ Weather:</span>{" "}
+//                 {selected.weather}, {selected.temp}°C
+//               </div>
+//               <div>
+//                 <span style={{ fontWeight: "bold" }}>🐦 Tweets:</span> {selected.tweetCount}
+//               </div>
+//               <div>
+//                 <span style={{ fontWeight: "bold" }}>📰 News:</span> {selected.newsCount}
+//               </div>
+//             </div>
+//           </InfoWindowF>
+//         )}
+//       </GoogleMap>
+//     </div>
+//   );
+// };
+
+// export default MapDashboard;
+
+// 
+
+
 "use client";
 import React, { useState } from "react";
-import { GoogleMap, MarkerF, InfoWindowF, useLoadScript } from "@react-google-maps/api";
+import {
+  GoogleMap,
+  MarkerF,
+  InfoWindowF,
+  HeatmapLayerF,
+  useLoadScript,
+} from "@react-google-maps/api";
 
-const libraries = ["places"];
-const googleMapContainerStyle = {
-  width: "100%",
-  height: "100vh",
+const libraries = ["visualization"]; // for heatmap
+
+const googleMapsApiKey = "AIzaSyBqXRmYQJPiIUFXKt0Z125e4fgES-hszRg"; // 🔐 Replace with your key
+
+const center = { lat: 12.9716, lng: 77.5946 };
+const containerStyle = { width: "100%", height: "100vh" };
+
+type Sentiment = "angry" | "calm" | "anxious" | "neutral";
+
+type Area = {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  weather: string;
+  temp: number;
+  tweetCount: number;
+  newsCount: number;
+  sentiment: Sentiment;
 };
 
-const center = {
-  lat: 12.9716,
-  lng: 77.5946,
-};
-
-// Mock traffic/weather/news data
-const areaData = [
+const areaData: Area[] = [
   {
     id: 1,
     name: "Koramangala",
@@ -256,16 +402,18 @@ const areaData = [
     temp: 24,
     tweetCount: 5,
     newsCount: 2,
+    sentiment: "angry",
   },
   {
     id: 2,
     name: "Hebbal",
     lat: 13.0358,
-    lng: 77.5970,
+    lng: 77.597,
     weather: "Cloudy ☁️",
     temp: 26,
     tweetCount: 1,
     newsCount: 1,
+    sentiment: "calm",
   },
   {
     id: 3,
@@ -276,8 +424,23 @@ const areaData = [
     temp: 30,
     tweetCount: 3,
     newsCount: 4,
+    sentiment: "anxious",
   },
 ];
+
+const emojiMap = {
+  angry: "😡",
+  calm: "😊",
+  anxious: "😰",
+  neutral: "😐",
+};
+
+const sentimentWeightMap: Record<Sentiment, number> = {
+  angry: 5,
+  calm: 2,
+  anxious: 4,
+  neutral: 1,
+};
 
 const getMarkerColor = (tweets: number, news: number, weather: string) => {
   const isRain = weather.toLowerCase().includes("rain");
@@ -290,33 +453,97 @@ const getMarkerColor = (tweets: number, news: number, weather: string) => {
 
 const MapDashboard = () => {
   const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey: "AIzaSyBqXRmYQJPiIUFXKt0Z125e4fgES-hszRg", // 🔐 Replace with your API key
+    googleMapsApiKey,
     libraries: libraries as any,
   });
 
-  const [selected, setSelected] = useState<any>(null);
+  const [selected, setSelected] = useState<Area | null>(null);
+  const [view, setView] = useState<"mood" | "heatmap" | "markers">("markers");
+  const heatmapRef = React.useRef<google.maps.visualization.HeatmapLayer | null>(null);
+
+  // 🧹 Remove heatmap when not in heatmap view
+  React.useEffect(() => {
+    if (view !== "heatmap" && heatmapRef.current) {
+      heatmapRef.current.setMap(null);
+      heatmapRef.current = null;
+    }
+  }, [view]);
 
   if (loadError) return <div>Error loading map</div>;
-  if (!isLoaded) return <div>Loading...</div>;
+  if (!isLoaded) return <div>Loading map...</div>;
 
   return (
     <div style={{ width: "100%", height: "100vh", position: "relative" }}>
-      <GoogleMap
-        mapContainerStyle={googleMapContainerStyle}
-        center={center}
-        zoom={12}
+      {/* 🧭 Bottom-left map view toggle */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 20,
+          left: 20,
+          zIndex: 10,
+          backgroundColor: "#fff",
+          padding: "12px",
+          borderRadius: "8px",
+          boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+          border: "1px solid #ccc",
+          fontFamily: "Arial",
+        }}
       >
-        {areaData.map((area) => (
-          <MarkerF
-            key={area.id}
-            position={{ lat: area.lat, lng: area.lng }}
-            icon={{
-              url: getMarkerColor(area.tweetCount, area.newsCount, area.weather),
-            }}
-            onClick={() => setSelected(area)}
-          />
-        ))}
+        <div style={{ fontWeight: "bold", marginBottom: "8px" }}>🗺️ Map View:</div>
+        <button onClick={() => setView("markers")} style={{ marginRight: "6px" }}>
+          🟢 Markers
+        </button>
+        <button onClick={() => setView("mood")} style={{ marginRight: "6px" }}>
+          😊 Mood
+        </button>
+        <button onClick={() => setView("heatmap")}>
+          🔥 Heatmap
+        </button>
+      </div>
 
+      <GoogleMap mapContainerStyle={containerStyle} center={center} zoom={12}>
+        {/* Colored Markers View */}
+        {view === "markers" &&
+          areaData.map((area) => (
+            <MarkerF
+              key={area.id}
+              position={{ lat: area.lat, lng: area.lng }}
+              icon={{
+                url: getMarkerColor(area.tweetCount, area.newsCount, area.weather),
+              }}
+              onClick={() => setSelected(area)}
+            />
+          ))}
+
+        {/* Mood Emoji View */}
+        {view === "mood" &&
+          areaData.map((area) => (
+            <MarkerF
+              key={area.id}
+              position={{ lat: area.lat, lng: area.lng }}
+              label={{
+                text: emojiMap[area.sentiment] || "📍",
+                fontSize: "20px",
+              }}
+              onClick={() => setSelected(area)}
+            />
+          ))}
+
+        {/* Heatmap Layer */}
+        {view === "heatmap" && (
+          <HeatmapLayerF
+            onLoad={(layer) => {
+              heatmapRef.current = layer;
+            }}
+            data={areaData.map((area) => ({
+              location: new window.google.maps.LatLng(area.lat, area.lng),
+              weight: sentimentWeightMap[area.sentiment] || 1,
+            }))}
+            options={{ radius: 50, opacity: 0.6, dissipating: true }}
+          />
+        )}
+
+        {/* Info Window */}
         {selected && (
           <InfoWindowF
             position={{ lat: selected.lat, lng: selected.lng }}
@@ -328,24 +555,19 @@ const MapDashboard = () => {
                 borderRadius: "8px",
                 padding: "10px",
                 minWidth: "200px",
-                fontFamily: "Arial, sans-serif",
+                fontFamily: "Arial",
                 fontSize: "14px",
-                lineHeight: "1.5",
               }}
             >
-              <div style={{ fontWeight: "bold", fontSize: "16px", marginBottom: "5px" }}>
-                📍 {selected.name}
-              </div>
-              <div>
-                <span style={{ fontWeight: "bold" }}>🌤️ Weather:</span>{" "}
-                {selected.weather}, {selected.temp}°C
-              </div>
-              <div>
-                <span style={{ fontWeight: "bold" }}>🐦 Tweets:</span> {selected.tweetCount}
-              </div>
-              <div>
-                <span style={{ fontWeight: "bold" }}>📰 News:</span> {selected.newsCount}
-              </div>
+              <strong>📍 {selected.name}</strong>
+              <br />
+              🌤️ Weather: {selected.weather}, {selected.temp}°C
+              <br />
+              🐦 Tweets: {selected.tweetCount}
+              <br />
+              📰 News: {selected.newsCount}
+              <br />
+              🧠 Mood: {emojiMap[selected.sentiment] || "❓"}
             </div>
           </InfoWindowF>
         )}
@@ -353,5 +575,5 @@ const MapDashboard = () => {
     </div>
   );
 };
-
 export default MapDashboard;
+
