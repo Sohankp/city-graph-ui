@@ -15,5 +15,9 @@ npm install
 ## Running the Project
 
 ```bash
+> **Note:** Make sure to start the backend server before running the UI.
+
+```bash
 npm run dev
+```
 ```
